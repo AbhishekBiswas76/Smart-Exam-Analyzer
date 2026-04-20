@@ -1,0 +1,119 @@
+# Smart Semester — Complete Setup Guide
+# =========================================
+# HOW TO SET UP THE BACKEND ON YOUR PC
+# =========================================
+
+# ─────────────────────────────────────────
+# STEP 1: Install XAMPP
+# ─────────────────────────────────────────
+# 1. Download XAMPP from: https://www.apachefriends.org
+# 2. Install it (default settings)
+# 3. Open XAMPP Control Panel
+# 4. Click START next to "Apache" and "MySQL"
+# 5. Both should show green status
+
+# ─────────────────────────────────────────
+# STEP 2: Place your project files
+# ─────────────────────────────────────────
+# Copy your entire project into:
+#   Windows: C:\xampp\htdocs\smart_semester\
+#   Mac/Linux: /opt/lampp/htdocs/smart_semester/
+#
+# Final structure should look like:
+#   htdocs/
+#     smart_semester/
+#       index.html
+#       css/
+#       js/
+#       pages/
+#       backend/
+#         database.sql
+#         config/
+#           db.php
+#           helpers.php
+#         api/
+#           register.php
+#           login.php
+#           logout.php
+#           profile.php
+#           materials.php
+#           tests.php
+#           submit_test.php
+#           messages.php
+#           students.php
+#           analytics.php
+#         uploads/
+#           materials/   ← auto-created on first upload
+#           photos/      ← auto-created on first upload
+
+# ─────────────────────────────────────────
+# STEP 3: Import the Database
+# ─────────────────────────────────────────
+# 1. Open your browser and go to: http://localhost/phpmyadmin
+# 2. Click "New" in the left panel → type "smart_semester" → Create
+# 3. Click on "smart_semester" database
+# 4. Click the "Import" tab at the top
+# 5. Click "Choose File" → select: backend/database.sql
+# 6. Scroll down → click "Go"
+# 7. You should see "Import has been successfully finished"
+
+# ─────────────────────────────────────────
+# STEP 4: Update database config
+# ─────────────────────────────────────────
+# Open: backend/config/db.php
+# Edit if needed (XAMPP defaults work without changes):
+#   DB_HOST = 'localhost'
+#   DB_USER = 'root'
+#   DB_PASS = ''           ← blank by default in XAMPP
+#   DB_NAME = 'smart_semester'
+
+# ─────────────────────────────────────────
+# STEP 5: Test the backend
+# ─────────────────────────────────────────
+# Open browser: http://localhost/smart_semester/backend/api/login.php
+# You should see: {"success":false,"message":"Method not allowed.",...}
+# That means the API is working! (GET request, it expects POST)
+
+# ─────────────────────────────────────────
+# STEP 6: Connect Frontend to Backend
+# ─────────────────────────────────────────
+# Open: js/app.js and change the BASE_URL at the top:
+#   const API = 'http://localhost/smart_semester/backend/api';
+# All fetch() calls in index.html and dashboard pages use this.
+
+# ─────────────────────────────────────────
+# DEMO CREDENTIALS (pre-loaded in database)
+# ─────────────────────────────────────────
+#   Student  → student@demo.com / demo123
+#   Teacher  → teacher@demo.com / demo123
+
+# ─────────────────────────────────────────
+# API ENDPOINTS REFERENCE
+# ─────────────────────────────────────────
+#
+# POST   /api/register.php      Register new user
+# POST   /api/login.php         Login
+# POST   /api/logout.php        Logout
+# GET    /api/profile.php       Get my profile
+# POST   /api/profile.php       Update profile / photo
+#
+# GET    /api/materials.php     List materials (filters: department, semester, type, search)
+# POST   /api/materials.php     Upload material (teacher, multipart/form-data)
+# DELETE /api/materials.php     Delete material {id}
+#
+# GET    /api/tests.php         List tests
+# GET    /api/tests.php?id=1    Single test with questions
+# POST   /api/tests.php         Create test + questions (teacher)
+# DELETE /api/tests.php         Delete test {id} (teacher)
+#
+# POST   /api/submit_test.php   Submit quiz answers (student)
+#
+# GET    /api/messages.php      List contacts
+# GET    /api/messages.php?with=5  Conversation with user #5
+# POST   /api/messages.php      Send message {receiver_id, message}
+#
+# GET    /api/students.php      All students (teacher)
+# GET    /api/students.php?id=1 Single student details (teacher)
+#
+# GET    /api/analytics.php?type=student  My analytics (student)
+# GET    /api/analytics.php?type=class    Class analytics (teacher)

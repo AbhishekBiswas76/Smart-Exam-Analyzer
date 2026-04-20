@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Semester — Login</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.15;pointer-events:none;z-index:0}
+    .orb-1{width:500px;height:500px;background:var(--teal);top:-120px;left:-100px}
+    .orb-2{width:400px;height:400px;background:var(--purple);bottom:-80px;right:-80px}
+    .orb-3{width:260px;height:260px;background:var(--amber);top:50%;left:55%;transform:translate(-50%,-50%)}
+    .login-wrap{position:relative;z-index:1;display:flex;background:var(--card2);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;width:900px;max-width:96vw;box-shadow:0 32px 80px rgba(0,0,0,.55);animation:fadeIn .6s ease}
+    .login-hero{width:42%;padding:48px 40px;background:linear-gradient(160deg,rgba(0,212,170,.1),rgba(124,92,191,.1));border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between}
+    .lh-logo{display:flex;align-items:center;gap:12px}
+    .lh-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+    .lh-name{font-family:var(--font-head);font-weight:800;font-size:17px}
+    .lh-sub{font-size:11px;color:var(--text3)}
+    .lh-body{padding:36px 0}
+    .lh-body h1{font-size:30px;font-weight:800;line-height:1.15;margin-bottom:14px}
+    .lh-body h1 span{color:var(--teal)}
+    .lh-body p{font-size:13px;color:var(--text2);line-height:1.7}
+    .features{margin-top:26px}
+    .feat{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.04)}
+    .feat:last-child{border:none}
+    .feat-ic{width:28px;height:28px;border-radius:6px;background:rgba(0,212,170,.12);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+    .login-form-wrap{flex:1;padding:48px 40px;display:flex;flex-direction:column;justify-content:center}
+    .login-form-wrap h2{font-size:22px;font-weight:800;margin-bottom:4px}
+    .lf-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+    .role-toggle{display:flex;background:rgba(255,255,255,.04);border-radius:var(--r-md);padding:4px;gap:4px;margin-bottom:22px}
+    .role-btn{flex:1;padding:10px;border-radius:var(--r-sm);background:none;border:none;cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:700;color:var(--text2);transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px}
+    .role-btn.active{background:var(--teal);color:var(--navy)}
+    .photo-upload{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px dashed rgba(0,212,170,.3);border-radius:var(--r-md);cursor:pointer;transition:background .2s}
+    .photo-upload:hover{background:rgba(0,212,170,.05)}
+    .photo-upload img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--teal);background:var(--navy3)}
+    .photo-txt{font-size:13px;font-weight:700}
+    .photo-sub{font-size:11px;color:var(--text3);margin-top:2px}
+    .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--teal),var(--teal2));border:none;border-radius:var(--r-md);color:var(--navy);font-family:var(--font-head);font-size:15px;font-weight:800;cursor:pointer;transition:all .3s;margin-top:6px}
+    .login-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,212,170,.35)}
+    .login-toggle{text-align:center;margin-top:16px;font-size:13px;color:var(--text2)}
+    .login-toggle span{color:var(--teal);cursor:pointer;font-weight:700}
+    .demo-box{background:rgba(74,144,226,.08);border:1px solid rgba(74,144,226,.2);border-radius:var(--r-md);padding:12px 14px;margin-top:14px;font-size:12px;color:var(--blue);line-height:1.7}
+    .demo-box strong{display:block;margin-bottom:3px}
+    @media(max-width:700px){.login-hero{display:none}.login-form-wrap{padding:32px 24px}}
+  </style>
+</head>
+<body>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+
+<div class="login-wrap wrapper">
+  <!-- LEFT -->
+  <div class="login-hero">
+    <div class="lh-logo">
+      <div class="lh-icon">🎓</div>
+      <div><div class="lh-name">Smart Semester</div><div class="lh-sub">Academic Management System</div></div>
+    </div>
+    <div class="lh-body">
+      <h1>Learn Smarter,<br><span>Score Higher.</span></h1>
+      <p>A complete academic platform for students and teachers to collaborate, assess, and grow.</p>
+      <div class="features">
+        <div class="feat"><div class="feat-ic">📚</div>Notes, PDFs, Videos &amp; PYQs</div>
+        <div class="feat"><div class="feat-ic">📝</div>Bi-weekly Online Tests</div>
+        <div class="feat"><div class="feat-ic">📊</div>AI Performance Analytics</div>
+        <div class="feat"><div class="feat-ic">💬</div>Student–Teacher Messaging</div>
+        <div class="feat"><div class="feat-ic">🏆</div>Leaderboard &amp; Progress Tracking</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text3)">© 2025 Smart Semester · Lab Project</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="login-form-wrap">
+    <h2 id="form-title">Welcome Back!</h2>
+    <p class="lf-sub" id="form-sub">Sign in to continue to your dashboard.</p>
+
+    <div class="role-toggle">
+      <button class="role-btn active" id="btn-student" onclick="setRole('student')">🎓 Student</button>
+      <button class="role-btn" id="btn-teacher" onclick="setRole('teacher')">👨‍🏫 Teacher</button>
+    </div>
+
+    <form onsubmit="handleLogin(event)">
+      <!-- Photo (Register) -->
+      <div id="photo-sec" class="d-none">
+        <div class="photo-upload" onclick="document.getElementById('photo-in').click()">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=student" id="photo-prev" alt=""/>
+          <div><div class="photo-txt">📸 Upload Profile Photo</div><div class="photo-sub">Click to choose · JPG, PNG</div></div>
+        </div>
+        <input type="file" id="photo-in" accept="image/*" class="d-none" onchange="previewPhoto(event)"/>
+      </div>
+
+      <!-- Name (Register) -->
+      <div class="form-group d-none" id="name-grp">
+        <label>Full Name</label>
+        <div class="input-group"><span class="input-icon">👤</span>
+          <input type="text" id="reg-name" class="form-control" placeholder="e.g. Rahul Sharma"/>
+        </div>
+      </div>
+
+      <!-- Dept + Sem (Student Register) -->
+      <div class="d-none" id="dept-grp">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label>Department</label>
+            <select class="form-control" id="reg-dept">
+              <option value="">Select</option>
+              <option>CSE</option><option>AI/ML</option><option>IT</option><option>DS</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Semester</label>
+            <select class="form-control" id="reg-sem">
+              <option value="">Select</option>
+              <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
+              <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
+              <option>Semester 7</option><option>Semester 8</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-group"><span class="input-icon">📧</span>
+          <input type="email" id="login-email" class="form-control" placeholder="yourname@college.edu" required/>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-group"><span class="input-icon">🔐</span>
+          <input type="password" id="login-pass" class="form-control" placeholder="Enter your password" required/>
+        </div>
+      </div>
+
+      <div id="forgot-row" style="text-align:right;margin:-10px 0 16px">
+        <a href="#" style="font-size:12px;color:var(--text3)">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="login-btn" id="submit-btn">Sign In →</button>
+
+      <div class="demo-box">
+        <strong>🔑 Demo Login (for testing)</strong>
+        Student → student@demo.com / demo123<br>
+        Teacher → teacher@demo.com / demo123
+      </div>
+    </form>
+
+    <div class="login-toggle">
+      <span id="toggle-link" onclick="toggleMode()">Don't have an account? Register</span>
+    </div>
+  </div>
+</div>
+
+<script>
+let mode='login', role='student';
+
+function setRole(r){
+  role=r;
+  document.getElementById('btn-student').classList.toggle('active',r==='student');
+  document.getElementById('btn-teacher').classList.toggle('active',r==='teacher');
+  if(mode==='register') document.getElementById('dept-grp').classList.toggle('d-none',r!=='student');
+  document.getElementById('photo-prev').src='https://api.dicebear.com/7.x/avataaars/svg?seed='+r;
+}
+
+function toggleMode(){
+  mode=mode==='login'?'register':'login';
+  const r=mode==='register';
+  document.getElementById('form-title').textContent=r?'Create Account':'Welcome Back!';
+  document.getElementById('form-sub').textContent=r?'Register to start your journey.':'Sign in to your dashboard.';
+  document.getElementById('submit-btn').textContent=r?'Create Account →':'Sign In →';
+  document.getElementById('toggle-link').textContent=r?'Already registered? Sign In':"Don't have an account? Register";
+  document.getElementById('photo-sec').classList.toggle('d-none',!r);
+  document.getElementById('name-grp').classList.toggle('d-none',!r);
+  document.getElementById('forgot-row').classList.toggle('d-none',r);
+  document.getElementById('dept-grp').classList.toggle('d-none',!(r&&role==='student'));
+}
+
+function previewPhoto(e){
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=ev=>document.getElementById('photo-prev').src=ev.target.result;
+  rd.readAsDataURL(f);
+}
+
+function handleLogin(e){
+  e.preventDefault();
+  const email=document.getElementById('login-email').value;
+  const pass=document.getElementById('login-pass').value;
+  if(mode==='login'){
+    if(email==='student@demo.com'&&pass==='demo123'){
+      localStorage.setItem('ss_user',JSON.stringify({role:'student',name:'Rahul Sharma',email,dept:'CSE',sem:'Semester 5',photo:'https://api.dicebear.com/7.x/avataaars/svg?seed=rahul'}));
+      window.location.href='pages/student-dashboard.html';
+    } else if(email==='teacher@demo.com'&&pass==='demo123'){
+      localStorage.setItem('ss_user',JSON.stringify({role:'teacher',name:'Prof. Anita Verma',email,dept:'CSE',photo:'https://api.dicebear.com/7.x/avataaars/svg?seed=anita'}));
+      window.location.href='pages/teacher-dashboard.html';
+    } else {
+      alert('❌ Invalid credentials.\nUse demo credentials shown below the form.');
+    }
+  } else {
+    const name=document.getElementById('reg-name').value;
+    if(!name){alert('Please enter your name.');return;}
+    localStorage.setItem('ss_user',JSON.stringify({role,name,email,dept:document.getElementById('reg-dept')?.value||'',sem:document.getElementById('reg-sem')?.value||'',photo:'https://api.dicebear.com/7.x/avataaars/svg?seed='+name}));
+    window.location.href=role==='student'?'pages/student-dashboard.html':'pages/teacher-dashboard.html';
+  }
+}
+</script>
+</body>
+</html>

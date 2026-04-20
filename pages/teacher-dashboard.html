@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Teacher Dashboard — Smart Semester</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="../js/app.js"></script>
+</head>
+<body>
+<div class="app-layout wrapper">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">👨‍🏫</div>
+    <div><div class="logo-text">Smart Semester</div><div class="logo-sub">Teacher Portal</div></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span>Dashboard</button>
+    <button class="nav-item" data-page="students" onclick="showPage('students')"><span class="nav-icon">👨‍🎓</span>My Students</button>
+    <button class="nav-item" data-page="content" onclick="showPage('content')"><span class="nav-icon">📤</span>Upload Content</button>
+    <button class="nav-item" data-page="tests" onclick="showPage('tests')"><span class="nav-icon">🧪</span>Test Management</button>
+    <button class="nav-item" data-page="analytics" onclick="showPage('analytics')"><span class="nav-icon">📈</span>Class Analytics</button>
+    <button class="nav-item" data-page="messages" onclick="showPage('messages')"><span class="nav-icon">💬</span>Messages <span class="nav-badge">3</span></button>
+  </div>
+  <div class="nav-section" style="margin-top:8px">
+    <div class="nav-label">Account</div>
+    <button class="nav-item" data-page="profile" onclick="showPage('profile')"><span class="nav-icon">👤</span>My Profile</button>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">🚪</span>Logout</button>
+  </div>
+  <div class="sidebar-user" id="sidebar-user"></div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main-content">
+
+<!-- ════ DASHBOARD ════ -->
+<section class="page-section" id="page-dashboard">
+  <div class="topbar">
+    <div><div class="topbar-title" id="t-greeting">Good Morning, Prof.! 👋</div>
+    <div class="topbar-sub">CSE Department · Semester 5 · 60 Students</div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-amber btn-sm" onclick="showPage('tests')">+ Create Test</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('content')">+ Upload</button>
+    </div>
+  </div>
+
+  <div class="grid-4 mb-24">
+    <div class="stat-card fade-in-1"><div class="icon" style="background:rgba(0,212,170,.12)">👨‍🎓</div><div class="value text-teal">60</div><div class="label">Total Students</div><div class="trend text-muted">CSE · Sem 5</div></div>
+    <div class="stat-card fade-in-2"><div class="icon" style="background:rgba(255,107,107,.12)">⚠️</div><div class="value text-coral">12</div><div class="label">Weak Students</div><div class="trend text-coral">Need attention</div></div>
+    <div class="stat-card fade-in-3"><div class="icon" style="background:rgba(255,201,71,.12)">📝</div><div class="value text-amber">4</div><div class="label">Tests Conducted</div><div class="trend text-muted">2 upcoming</div></div>
+    <div class="stat-card fade-in-4"><div class="icon" style="background:rgba(74,144,226,.12)">📚</div><div class="value text-blue">24</div><div class="label">Materials Uploaded</div><div class="trend text-muted">This semester</div></div>
+  </div>
+
+  <div class="grid-2 mb-20">
+    <div class="card">
+      <div class="flex-between mb-16"><div class="fw-700 font-head" style="font-size:15px">Class Performance Distribution</div><span class="badge badge-teal">Sem 5</span></div>
+      <div style="position:relative;height:230px"><canvas id="t-distChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="flex-between mb-16"><div class="fw-700 font-head" style="font-size:15px">Subject-wise Class Average</div></div>
+      <div style="position:relative;height:230px"><canvas id="t-subChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Weak students -->
+    <div class="card">
+      <div class="flex-between mb-16">
+        <div class="fw-700 font-head" style="font-size:15px">⚠️ Students Needing Help</div>
+        <button class="btn btn-danger btn-sm" onclick="showPage('students')">View All</button>
+      </div>
+      <div id="weak-students-list"></div>
+    </div>
+    <!-- Recent activity -->
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">📋 Recent Activity</div>
+      <div class="alert alert-success">✅ Unit Test 2 results published · 2h ago</div>
+      <div class="alert alert-info">📤 OS Notes uploaded by you · Yesterday</div>
+      <div class="alert alert-warning">⏳ Mid Semester exam in 12 days</div>
+      <div class="alert alert-info">💬 3 new student messages</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ STUDENTS ════ -->
+<section class="page-section d-none" id="page-students">
+  <div class="topbar">
+    <div><div class="topbar-title">👨‍🎓 My Students</div><div class="topbar-sub">Monitor and guide individual performance</div></div>
+    <div class="topbar-actions">
+      <input type="text" style="padding:8px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:999px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;width:220px" placeholder="🔍 Search students..." oninput="filterStudents(this.value)"/>
+      <select class="form-control" style="width:140px" onchange="filterStudentPerf(this.value)">
+        <option value="">All Students</option>
+        <option value="weak">⚠️ Weak (&lt;65%)</option>
+        <option value="avg">📊 Average (65-80%)</option>
+        <option value="good">🌟 Good (&gt;80%)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data-table" id="students-table">
+        <thead>
+          <tr>
+            <th>Student</th><th>Roll No.</th><th>Avg Score</th>
+            <th>Attendance</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="students-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Student Detail Modal -->
+  <div class="modal-overlay d-none" id="student-modal">
+    <div class="modal-box" style="max-width:640px">
+      <div class="modal-title" id="modal-student-name">Student Details</div>
+      <div class="grid-2 mb-16">
+        <div class="stat-card"><div class="value text-teal" id="modal-avg">—</div><div class="label">Average Score</div></div>
+        <div class="stat-card"><div class="value text-amber" id="modal-att">—</div><div class="label">Attendance</div></div>
+      </div>
+      <div style="position:relative;height:200px;margin-bottom:16px"><canvas id="modal-chart"></canvas></div>
+      <div class="alert alert-info" id="modal-suggestion">Loading suggestion...</div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('student-modal')">Close</button>
+        <button class="btn btn-primary" onclick="openChat(0);closeModal('student-modal');showPage('messages')">💬 Message Student</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ UPLOAD CONTENT ════ -->
+<section class="page-section d-none" id="page-content">
+  <div class="topbar">
+    <div><div class="topbar-title">📤 Upload Content</div><div class="topbar-sub">Add study materials for your students</div></div>
+  </div>
+
+  <div class="grid-2 mb-20">
+    <!-- Upload Form -->
+    <div class="card">
+      <div class="fw-700 font-head mb-20" style="font-size:15px">Upload New Material</div>
+      <div class="form-group"><label>Material Title</label><input class="form-control" id="mat-title" placeholder="e.g. DS Unit 3 — Trees"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Department</label>
+          <select class="form-control" id="mat-dept"><option>CSE</option><option>AI/ML</option><option>IT</option><option>DS</option></select>
+        </div>
+        <div class="form-group"><label>Semester</label>
+          <select class="form-control" id="mat-sem">
+            <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
+            <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
+            <option>Semester 7</option><option>Semester 8</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Subject</label><input class="form-control" id="mat-subject" placeholder="e.g. Data Structures"/></div>
+        <div class="form-group"><label>Type</label>
+          <select class="form-control" id="mat-type"><option value="pdf">📄 PDF / Notes</option><option value="video">🎥 Video</option><option value="pyq">📋 PYQ</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Upload File</label>
+        <div style="border:2px dashed rgba(0,212,170,.3);border-radius:var(--r-md);padding:28px;text-align:center;cursor:pointer;transition:all .2s" onclick="document.getElementById('file-in').click()" id="drop-zone">
+          <div style="font-size:32px;margin-bottom:8px">📁</div>
+          <div class="fw-700 text-sm" id="drop-label">Click to upload file</div>
+          <div class="text-xs text-muted mt-8">PDF, MP4, DOC supported · Max 50MB</div>
+        </div>
+        <input type="file" id="file-in" class="d-none" onchange="fileSelected(event)"/>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="uploadMaterial()">📤 Upload Material</button>
+    </div>
+
+    <!-- Uploaded list -->
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Your Uploads</div>
+      <div id="teacher-materials-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ TEST MANAGEMENT ════ -->
+<section class="page-section d-none" id="page-tests">
+  <div class="topbar">
+    <div><div class="topbar-title">🧪 Test Management</div><div class="topbar-sub">Create, schedule, and evaluate tests</div></div>
+    <button class="btn btn-amber" onclick="openModal('create-test-modal')">+ Create New Test</button>
+  </div>
+
+  <div class="grid-2 mb-20">
+    <!-- Existing Tests -->
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Scheduled Tests</div>
+      <div id="teacher-tests-list"></div>
+    </div>
+    <!-- Quick Create -->
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Quick Add Question</div>
+      <div class="form-group"><label>Select Test</label>
+        <select class="form-control" id="q-test">
+          <option>Unit Test 1 — DS</option><option>Unit Test 2 — DBMS</option><option>Mid Semester</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Question</label>
+        <textarea class="form-control" id="q-text" rows="3" placeholder="Enter your question..."></textarea>
+      </div>
+      <div class="form-group"><label>Option A</label><input class="form-control" id="q-a" placeholder="Option A"/></div>
+      <div class="form-group"><label>Option B</label><input class="form-control" id="q-b" placeholder="Option B"/></div>
+      <div class="form-group"><label>Option C</label><input class="form-control" id="q-c" placeholder="Option C"/></div>
+      <div class="form-group"><label>Option D</label><input class="form-control" id="q-d" placeholder="Option D"/></div>
+      <div class="form-group"><label>Correct Answer</label>
+        <select class="form-control" id="q-ans"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="addQuestion()">➕ Add Question</button>
+    </div>
+  </div>
+
+  <!-- Create Test Modal -->
+  <div class="modal-overlay d-none" id="create-test-modal" onclick="if(event.target===this)closeModal('create-test-modal')">
+    <div class="modal-box">
+      <div class="modal-title">🧪 Create New Test</div>
+      <div class="form-group"><label>Test Title</label><input class="form-control" id="ct-title" placeholder="e.g. Unit Test 3 — OS"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Date</label><input class="form-control" type="date" id="ct-date"/></div>
+        <div class="form-group"><label>Duration (minutes)</label><input class="form-control" type="number" id="ct-dur" placeholder="30"/></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Total Marks</label><input class="form-control" type="number" id="ct-marks" placeholder="20"/></div>
+        <div class="form-group"><label>Subject</label><input class="form-control" id="ct-sub" placeholder="e.g. Data Structures"/></div>
+      </div>
+      <div class="form-group"><label>Department</label>
+        <select class="form-control" id="ct-dept"><option>CSE</option><option>AI/ML</option><option>IT</option><option>DS</option></select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('create-test-modal')">Cancel</button>
+        <button class="btn btn-amber" onclick="createTest()">Create Test →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ CLASS ANALYTICS ════ -->
+<section class="page-section d-none" id="page-analytics">
+  <div class="topbar"><div class="topbar-title">📈 Class Analytics</div><div class="topbar-sub">Overall class performance insights</div></div>
+
+  <div class="grid-4 mb-24">
+    <div class="stat-card"><div class="icon" style="background:rgba(0,212,170,.12)">📊</div><div class="value text-teal">74%</div><div class="label">Class Average</div></div>
+    <div class="stat-card"><div class="icon" style="background:rgba(74,144,226,.12)">✅</div><div class="value text-blue">85%</div><div class="label">Pass Rate</div></div>
+    <div class="stat-card"><div class="icon" style="background:rgba(255,107,107,.12)">📉</div><div class="value text-coral">OS</div><div class="label">Lowest Subject</div></div>
+    <div class="stat-card"><div class="icon" style="background:rgba(255,201,71,.12)">🌟</div><div class="value text-amber">SE</div><div class="label">Top Subject</div></div>
+  </div>
+
+  <div class="grid-2 mb-20">
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Score Distribution</div>
+      <div style="position:relative;height:240px"><canvas id="cls-dist"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Subject Performance (Class Avg)</div>
+      <div style="position:relative;height:240px"><canvas id="cls-sub"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="fw-700 font-head mb-16" style="font-size:15px">Individual Student Scores Heatmap</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Student</th>
+            ${DEMO.subjects.map(s=>`<th>${s}</th>`).join('')}
+            <th>Average</th>
+          </tr>
+        </thead>
+        <tbody id="heatmap-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════ MESSAGES ════ -->
+<section class="page-section d-none" id="page-messages">
+  <div class="topbar"><div class="topbar-title">💬 Messages</div><div class="topbar-sub">Communicate with students</div></div>
+  <div class="chat-wrap">
+    <div class="chat-list">
+      <div class="chat-list-header">Conversations</div>
+      <div id="t-chat-contacts"></div>
+    </div>
+    <div class="chat-main">
+      <div class="chat-header" id="t-chat-header">
+        <div style="font-size:24px">💬</div>
+        <div><div class="fw-700" style="font-size:13px">Select a conversation</div></div>
+      </div>
+      <div class="chat-messages" id="t-chat-messages">
+        <div style="text-align:center;color:var(--text3);font-size:13px;margin-top:60px">Select a contact to start chatting</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="t-chat-input-box" placeholder="Type a message..." onkeydown="if(event.key==='Enter')tSendMessage()"/>
+        <button class="btn btn-primary btn-sm" onclick="tSendMessage()">Send ✈️</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ PROFILE ════ -->
+<section class="page-section d-none" id="page-profile">
+  <div class="topbar"><div class="topbar-title">👤 My Profile</div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div style="text-align:center;padding:20px 0 28px">
+        <div style="position:relative;display:inline-block;cursor:pointer" onclick="document.getElementById('t-photo-in').click()">
+          <img id="t-profile-photo" style="width:100px;height:100px;border-radius:50%;border:3px solid var(--amber);object-fit:cover" src="" alt=""/>
+          <div style="position:absolute;bottom:4px;right:4px;width:28px;height:28px;border-radius:50%;background:var(--amber);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--navy2)">✏️</div>
+        </div>
+        <input type="file" id="t-photo-in" accept="image/*" class="d-none" onchange="tUpdatePhoto(event)"/>
+        <div class="fw-800 font-head mt-12" style="font-size:20px" id="t-name-display">—</div>
+        <div class="text-muted text-sm mt-8">Teacher · CSE Department</div>
+        <span class="badge badge-amber mt-12">Faculty</span>
+      </div>
+      <div style="height:1px;background:var(--border);margin:0 -24px 20px"></div>
+      <div class="form-group"><label>Full Name</label><input class="form-control" id="t-name-in" placeholder="Prof. Name"/></div>
+      <div class="form-group"><label>Email</label><input class="form-control" id="t-email-in" type="email" placeholder="email@college.edu"/></div>
+      <div class="form-group"><label>Department</label>
+        <select class="form-control" id="t-dept-in"><option>CSE</option><option>AI/ML</option><option>IT</option><option>DS</option></select>
+      </div>
+      <div class="form-group"><label>Subject Specialization</label><input class="form-control" id="t-spec-in" placeholder="e.g. Data Structures, DBMS"/></div>
+      <button class="btn btn-amber btn-full mt-8" onclick="tSaveProfile()">💾 Save Profile</button>
+    </div>
+    <div class="card">
+      <div class="fw-700 font-head mb-20" style="font-size:15px">Teaching Summary</div>
+      <div class="grid-2 mb-20">
+        <div class="stat-card"><div class="value text-amber">60</div><div class="label">Students</div></div>
+        <div class="stat-card"><div class="value text-teal">24</div><div class="label">Materials Uploaded</div></div>
+        <div class="stat-card"><div class="value text-blue">4</div><div class="label">Tests Created</div></div>
+        <div class="stat-card"><div class="value text-coral">12</div><div class="label">Weak Students</div></div>
+      </div>
+      <div class="fw-700 font-head mb-12" style="font-size:14px">Change Password</div>
+      <div class="form-group"><label>Current Password</label><input class="form-control" type="password" placeholder="••••••••"/></div>
+      <div class="form-group"><label>New Password</label><input class="form-control" type="password" placeholder="••••••••"/></div>
+      <button class="btn btn-ghost btn-full">🔐 Update Password</button>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+const user=getUser();
+if(user&&user.role!=='teacher') window.location.href='student-dashboard.html';
+const h=new Date().getHours();
+document.getElementById('t-greeting').textContent=(h<12?'Good Morning':h<17?'Good Afternoon':'Good Evening')+', '+((user?.name)||'Professor')+'! 👋';
+renderSidebarUser(user);
+
+// Profile
+document.getElementById('t-profile-photo').src=user?.photo||'https://api.dicebear.com/7.x/avataaars/svg?seed='+(user?.name||'teacher');
+document.getElementById('t-name-display').textContent=user?.name||'Professor';
+document.getElementById('t-name-in').value=user?.name||'';
+document.getElementById('t-email-in').value=user?.email||'';
+
+// ══ DASHBOARD CHARTS ══
+new Chart(document.getElementById('t-distChart').getContext('2d'),{
+  type:'doughnut',
+  data:{labels:['90-100%','75-89%','60-74%','Below 60%'],datasets:[{data:[8,22,18,12],backgroundColor:['#00D4AA','#4A90E2','#FFC947','#FF6B6B'],borderColor:'transparent',borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9BA3C4',font:{size:11},padding:16}}}}
+});
+new Chart(document.getElementById('t-subChart').getContext('2d'),{
+  type:'bar',
+  data:{labels:DEMO.subjects,datasets:[{label:'Class Avg %',data:[69,78,58,74,82],backgroundColor:'rgba(0,212,170,.6)',borderRadius:6}]},
+  options:{...chartDefaults(),scales:{y:{min:0,max:100,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#9BA3C4',font:{size:10},callback:v=>v+'%'}},x:{grid:{display:false},ticks:{color:'#9BA3C4',font:{size:10}}}}}
+});
+
+// Weak students
+const wl=document.getElementById('weak-students-list');
+DEMO.students.filter(s=>s.avg<65).forEach(s=>{
+  wl.innerHTML+=`<div class="flex-between" style="padding:10px 0;border-bottom:1px solid var(--border)">
+    <div><div class="fw-700 text-sm">${s.name}</div><div class="text-xs text-muted">${s.roll} · Attendance: ${s.attendance}%</div></div>
+    <div class="flex gap-8 align-center">
+      <span class="badge badge-coral">${s.avg}%</span>
+      <button class="btn btn-secondary btn-sm" onclick="viewStudent('${s.name}',${s.avg},${s.attendance})">View</button>
+    </div>
+  </div>`;
+});
+
+// ══ STUDENTS TABLE ══
+function renderStudentsTable(data){
+  const tb=document.getElementById('students-tbody');
+  tb.innerHTML=data.map(s=>{
+    const cls=s.avg>=80?'badge-teal':s.avg>=65?'badge-amber':'badge-coral';
+    const status=s.avg>=80?'Good 🌟':s.avg>=65?'Average':'Needs Help ⚠️';
+    return `<tr>
+      <td><div class="fw-700">${s.name}</div></td>
+      <td><span class="font-mono text-xs">${s.roll}</span></td>
+      <td><span class="fw-800 text-teal">${s.avg}%</span></td>
+      <td>
+        <div class="flex gap-8" style="align-items:center">
+          <div class="progress-wrap" style="width:60px"><div class="progress-bar ${s.attendance<80?'coral':''}" style="width:${s.attendance}%"></div></div>
+          <span class="text-sm">${s.attendance}%</span>
+        </div>
+      </td>
+      <td><span class="badge ${cls}">${status}</span></td>
+      <td class="flex gap-8">
+        <button class="btn btn-secondary btn-sm" onclick="viewStudent('${s.name}',${s.avg},${s.attendance},[${s.scores}])">📊 Details</button>
+        <button class="btn btn-ghost btn-sm" onclick="showPage('messages')">💬 Chat</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+renderStudentsTable(DEMO.students);
+function filterStudents(q){renderStudentsTable(DEMO.students.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())));}
+function filterStudentPerf(v){
+  if(!v){renderStudentsTable(DEMO.students);return;}
+  if(v==='weak') renderStudentsTable(DEMO.students.filter(s=>s.avg<65));
+  if(v==='avg')  renderStudentsTable(DEMO.students.filter(s=>s.avg>=65&&s.avg<=80));
+  if(v==='good') renderStudentsTable(DEMO.students.filter(s=>s.avg>80));
+}
+
+let modalChart=null;
+function viewStudent(name,avg,att,scores=[72,85,61,78,90]){
+  document.getElementById('modal-student-name').textContent='📊 '+name;
+  document.getElementById('modal-avg').textContent=avg+'%';
+  document.getElementById('modal-att').textContent=att+'%';
+  document.getElementById('modal-suggestion').textContent=avg<65?'⚠️ Urgent: This student needs extra support. Schedule a one-on-one session.':avg<80?'📌 Student is average. Encourage more practice tests.':'🌟 Performing well. Keep motivating with advanced materials.';
+  openModal('student-modal');
+  if(modalChart){modalChart.destroy();}
+  modalChart=new Chart(document.getElementById('modal-chart').getContext('2d'),{
+    type:'bar',data:{labels:DEMO.subjects,datasets:[{data:scores,backgroundColor:'rgba(0,212,170,.6)',borderRadius:6}]},
+    options:{...chartDefaults(),scales:{y:{min:0,max:100,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#9BA3C4',font:{size:10},callback:v=>v+'%'}},x:{grid:{display:false},ticks:{color:'#9BA3C4',font:{size:10}}}}}
+  });
+}
+
+// ══ CONTENT UPLOAD ══
+function fileSelected(e){
+  const f=e.target.files[0];
+  if(f) document.getElementById('drop-label').textContent='✅ '+f.name+' selected';
+}
+let tMaterials=[...DEMO.materials];
+function renderTeacherMaterials(){
+  const el=document.getElementById('teacher-materials-list');
+  const icons={pdf:'📄',video:'🎥',pyq:'📋'};
+  el.innerHTML=tMaterials.map(m=>`
+    <div class="flex-between" style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="flex gap-8" style="align-items:center">
+        <span style="font-size:20px">${icons[m.type]}</span>
+        <div><div class="fw-700 text-sm">${m.title}</div><div class="text-xs text-muted">${m.subject} · ${m.size}</div></div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="deleteMaterial(${m.id})">🗑</button>
+    </div>`).join('');
+}
+function uploadMaterial(){
+  const title=document.getElementById('mat-title').value.trim();
+  if(!title){toast('Enter material title','error');return;}
+  const newMat={id:Date.now(),title,subject:document.getElementById('mat-subject').value||'General',type:document.getElementById('mat-type').value,size:'—',date:new Date().toISOString().split('T')[0]};
+  tMaterials.unshift(newMat);
+  renderTeacherMaterials();
+  document.getElementById('mat-title').value='';
+  document.getElementById('drop-label').textContent='Click to upload file';
+  toast('Material uploaded successfully!');
+}
+function deleteMaterial(id){tMaterials=tMaterials.filter(m=>m.id!==id);renderTeacherMaterials();toast('Material deleted','info');}
+renderTeacherMaterials();
+
+// ══ TEST MANAGEMENT ══
+let tTests=[...DEMO.tests];
+function renderTeacherTests(){
+  const el=document.getElementById('teacher-tests-list');
+  el.innerHTML=tTests.map(t=>`
+    <div class="card card-sm mb-12">
+      <div class="flex-between mb-8">
+        <span class="badge ${t.status==='upcoming'?'badge-amber':'badge-teal'}">${t.status}</span>
+        <span class="text-xs text-muted">${t.date}</span>
+      </div>
+      <div class="fw-700 text-sm mb-8">${t.title}</div>
+      <div class="text-xs text-muted mb-12">${t.duration} min · ${t.marks} marks</div>
+      <div class="flex gap-8">
+        <button class="btn btn-secondary btn-sm">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTest(${t.id})">🗑 Delete</button>
+      </div>
+    </div>`).join('');
+}
+function createTest(){
+  const title=document.getElementById('ct-title').value.trim();
+  if(!title){toast('Enter test title','error');return;}
+  tTests.unshift({id:Date.now(),title,date:document.getElementById('ct-date').value||'TBD',duration:parseInt(document.getElementById('ct-dur').value)||30,marks:parseInt(document.getElementById('ct-marks').value)||20,status:'upcoming',score:null});
+  closeModal('create-test-modal');renderTeacherTests();toast('Test created!');
+}
+function deleteTest(id){tTests=tTests.filter(t=>t.id!==id);renderTeacherTests();toast('Test deleted','info');}
+function addQuestion(){
+  const q=document.getElementById('q-text').value.trim();
+  if(!q){toast('Enter a question','error');return;}
+  ['q-text','q-a','q-b','q-c','q-d'].forEach(id=>document.getElementById(id).value='');
+  toast('Question added successfully!');
+}
+renderTeacherTests();
+
+// ══ CLASS ANALYTICS ══
+function initClassAnalytics(){
+  new Chart(document.getElementById('cls-dist').getContext('2d'),{
+    type:'bar',
+    data:{labels:['0-40%','40-50%','50-60%','60-70%','70-80%','80-90%','90-100%'],datasets:[{data:[3,5,9,14,18,8,3],backgroundColor:'rgba(0,212,170,.6)',borderRadius:6}]},
+    options:{...chartDefaults(),scales:{y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#9BA3C4',font:{size:10}}},x:{grid:{display:false},ticks:{color:'#9BA3C4',font:{size:10}}}}}
+  });
+  new Chart(document.getElementById('cls-sub').getContext('2d'),{
+    type:'bar',data:{labels:DEMO.subjects,datasets:[{data:[69,78,58,74,82],backgroundColor:['#00D4AA','#4A90E2','#FF6B6B','#FFC947','#7C5CBF'],borderRadius:8}]},
+    options:{...chartDefaults(),indexAxis:'y',scales:{x:{min:0,max:100,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#9BA3C4',font:{size:10},callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:'#9BA3C4',font:{size:10}}}}}
+  });
+  // Heatmap
+  const tb=document.getElementById('heatmap-tbody');
+  const getColor=v=>v>=80?'rgba(0,212,170,.25)':v>=65?'rgba(255,201,71,.2)':'rgba(255,107,107,.2)';
+  tb.innerHTML=DEMO.students.map(s=>`
+    <tr>
+      <td class="fw-700">${s.name}</td>
+      ${s.scores.map(sc=>`<td style="background:${getColor(sc)};color:${sc>=80?'#00D4AA':sc>=65?'#FFC947':'#FF6B6B'};font-weight:700;text-align:center">${sc}%</td>`).join('')}
+      <td class="fw-800 text-teal text-center">${s.avg}%</td>
+    </tr>`).join('');
+}
+
+// ══ MESSAGES ══
+let tActiveChatId=null;
+function renderTChatContacts(){
+  const cl=document.getElementById('t-chat-contacts');
+  cl.innerHTML=DEMO.messages.map(m=>`
+    <div class="chat-contact ${tActiveChatId===m.id?'active':''}" onclick="tOpenChat(${m.id})">
+      <div class="c-avatar"><img src="${m.photo}" style="width:100%;height:100%;border-radius:50%"/></div>
+      <div><div class="c-name">${m.from}</div><div class="c-last">${m.msgs[m.msgs.length-1].txt}</div></div>
+    </div>`).join('');
+}
+function tOpenChat(id){
+  tActiveChatId=id; renderTChatContacts();
+  const m=DEMO.messages.find(x=>x.id===id);
+  document.getElementById('t-chat-header').innerHTML=`<img src="${m.photo}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--teal)"/><div><div class="fw-700" style="font-size:13px">${m.from}</div><div class="text-xs text-muted">${m.role}</div></div>`;
+  const cm=document.getElementById('t-chat-messages');
+  cm.innerHTML=m.msgs.map(msg=>`<div class="msg ${msg.sent?'sent':'recv'}"><div class="bubble">${msg.txt}</div><div class="time">${msg.time}</div></div>`).join('');
+  cm.scrollTop=cm.scrollHeight;
+}
+function tSendMessage(){
+  if(!tActiveChatId){toast('Select a conversation','error');return;}
+  const inp=document.getElementById('t-chat-input-box');
+  const txt=inp.value.trim(); if(!txt)return;
+  DEMO.messages.find(x=>x.id===tActiveChatId).msgs.push({txt,time:'Just now',sent:true});
+  inp.value=''; tOpenChat(tActiveChatId);
+}
+renderTChatContacts();
+
+// ══ PROFILE ══
+function tUpdatePhoto(e){
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=ev=>{document.getElementById('t-profile-photo').src=ev.target.result;const u=getUser();u.photo=ev.target.result;localStorage.setItem('ss_user',JSON.stringify(u));renderSidebarUser(u);toast('Photo updated!');};
+  rd.readAsDataURL(f);
+}
+function tSaveProfile(){
+  const u=getUser();u.name=document.getElementById('t-name-in').value;u.email=document.getElementById('t-email-in').value;u.dept=document.getElementById('t-dept-in').value;
+  localStorage.setItem('ss_user',JSON.stringify(u));renderSidebarUser(u);document.getElementById('t-name-display').textContent=u.name;toast('Profile saved!');
+}
+
+// ══ PAGE OBSERVER ══
+const origShow=showPage;
+window.showPage=function(id){
+  origShow(id);
+  if(id==='analytics') initClassAnalytics();
+};
+</script>
+</body>
+</html>

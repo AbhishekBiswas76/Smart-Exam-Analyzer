@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Student Dashboard — Smart Semester</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="../js/app.js"></script>
+</head>
+<body>
+<div class="app-layout wrapper">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🎓</div>
+    <div><div class="logo-text">Smart Semester</div><div class="logo-sub">Student Portal</div></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span>Dashboard</button>
+    <button class="nav-item" data-page="materials" onclick="showPage('materials')"><span class="nav-icon">📚</span>Study Materials</button>
+    <button class="nav-item" data-page="tests" onclick="showPage('tests')"><span class="nav-icon">📝</span>Online Tests <span class="nav-badge">2</span></button>
+    <button class="nav-item" data-page="analytics" onclick="showPage('analytics')"><span class="nav-icon">📊</span>My Analytics</button>
+    <button class="nav-item" data-page="leaderboard" onclick="showPage('leaderboard')"><span class="nav-icon">🏆</span>Leaderboard</button>
+    <button class="nav-item" data-page="messages" onclick="showPage('messages')"><span class="nav-icon">💬</span>Messages <span class="nav-badge">1</span></button>
+  </div>
+
+  <div class="nav-section" style="margin-top:8px">
+    <div class="nav-label">Account</div>
+    <button class="nav-item" data-page="profile" onclick="showPage('profile')"><span class="nav-icon">👤</span>My Profile</button>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">🚪</span>Logout</button>
+  </div>
+
+  <div class="sidebar-user" id="sidebar-user"></div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main-content">
+
+<!-- ════ DASHBOARD ════ -->
+<section class="page-section" id="page-dashboard">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="dash-greeting">Good Morning! 👋</div>
+      <div class="topbar-sub" id="dash-sub">Here's your academic overview for today.</div>
+    </div>
+    <div class="topbar-actions">
+      <span class="badge badge-teal" id="dash-dept-badge">CSE · Sem 5</span>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid-4 mb-24">
+    <div class="stat-card fade-in-1">
+      <div class="icon" style="background:rgba(0,212,170,.12)">📊</div>
+      <div class="value text-teal">76%</div>
+      <div class="label">Overall Average</div>
+      <div class="trend text-teal">↑ +4% this month</div>
+    </div>
+    <div class="stat-card fade-in-2">
+      <div class="icon" style="background:rgba(255,201,71,.12)">📝</div>
+      <div class="value text-amber">4</div>
+      <div class="label">Tests Attempted</div>
+      <div class="trend text-muted">2 upcoming</div>
+    </div>
+    <div class="stat-card fade-in-3">
+      <div class="icon" style="background:rgba(74,144,226,.12)">📚</div>
+      <div class="value text-blue">18</div>
+      <div class="label">Materials Accessed</div>
+      <div class="trend text-muted">6 new this week</div>
+    </div>
+    <div class="stat-card fade-in-4">
+      <div class="icon" style="background:rgba(124,92,191,.12)">🏆</div>
+      <div class="value" style="color:var(--purple)">#2</div>
+      <div class="label">Class Rank</div>
+      <div class="trend text-muted">Out of 60 students</div>
+    </div>
+  </div>
+
+  <div class="grid-2 mb-24">
+    <!-- Performance Chart -->
+    <div class="card fade-in-1">
+      <div class="flex-between mb-16">
+        <div>
+          <div class="fw-700 font-head" style="font-size:15px">Subject Performance</div>
+          <div class="text-sm text-muted mt-8">Average score per subject</div>
+        </div>
+        <span class="badge badge-teal">Sem 5</span>
+      </div>
+      <div style="position:relative;height:220px"><canvas id="perfChart"></canvas></div>
+    </div>
+
+    <!-- Upcoming Tests -->
+    <div class="card fade-in-2">
+      <div class="flex-between mb-16">
+        <div class="fw-700 font-head" style="font-size:15px">Upcoming Tests</div>
+        <button class="btn btn-secondary btn-sm" onclick="showPage('tests')">View All</button>
+      </div>
+      <div id="upcoming-tests-list"></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Recent Materials -->
+    <div class="card">
+      <div class="flex-between mb-16">
+        <div class="fw-700 font-head" style="font-size:15px">Recent Materials</div>
+        <button class="btn btn-secondary btn-sm" onclick="showPage('materials')">Browse All</button>
+      </div>
+      <div id="recent-materials-list"></div>
+    </div>
+
+    <!-- AI Suggestions -->
+    <div class="card">
+      <div class="flex-between mb-16">
+        <div class="fw-700 font-head" style="font-size:15px">🤖 AI Suggestions</div>
+        <span class="badge badge-amber">Smart Tips</span>
+      </div>
+      <div class="alert alert-warning mb-12">⚠️ <strong>Weak Area:</strong> OS score (61%) needs improvement.</div>
+      <div class="alert alert-info mb-12">📖 Spend 2 extra hrs/week on OS Process Scheduling.</div>
+      <div class="alert alert-success mb-12">🌟 <strong>Strength:</strong> Software Engg. at 90%. Keep it up!</div>
+      <div class="alert alert-info">🎯 Mock exam in 45 days. You're on track if you maintain current pace.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ STUDY MATERIALS ════ -->
+<section class="page-section d-none" id="page-materials">
+  <div class="topbar">
+    <div><div class="topbar-title">📚 Study Materials</div><div class="topbar-sub">Notes, Videos &amp; Previous Year Questions</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-20" style="padding:16px 20px">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <div style="flex:1;min-width:180px">
+        <select class="form-control" id="filter-dept" onchange="filterMaterials()">
+          <option value="">All Departments</option>
+          <option>CSE</option><option>AI/ML</option><option>IT</option><option>DS</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <select class="form-control" id="filter-sem" onchange="filterMaterials()">
+          <option value="">All Semesters</option>
+          <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
+          <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
+          <option>Semester 7</option><option>Semester 8</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <select class="form-control" id="filter-type" onchange="filterMaterials()">
+          <option value="">All Types</option>
+          <option value="pdf">📄 PDFs / Notes</option>
+          <option value="video">🎥 Videos</option>
+          <option value="pyq">📋 PYQs</option>
+        </select>
+      </div>
+      <div style="flex:2;min-width:200px">
+        <input type="text" class="form-control" id="filter-search" placeholder="🔍 Search materials..." oninput="filterMaterials()"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchMatTab('all',this)">All Materials</button>
+    <button class="tab-btn" onclick="switchMatTab('pdf',this)">📄 Notes & PDFs</button>
+    <button class="tab-btn" onclick="switchMatTab('video',this)">🎥 Video Lectures</button>
+    <button class="tab-btn" onclick="switchMatTab('pyq',this)">📋 PYQs</button>
+  </div>
+
+  <div id="materials-grid" class="grid-2"></div>
+</section>
+
+<!-- ════ ONLINE TESTS ════ -->
+<section class="page-section d-none" id="page-tests">
+  <div class="topbar">
+    <div><div class="topbar-title">📝 Online Tests</div><div class="topbar-sub">Bi-weekly assessments &amp; mock exams</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTestTab('upcoming',this)">⏳ Upcoming</button>
+    <button class="tab-btn" onclick="switchTestTab('completed',this)">✅ Completed</button>
+  </div>
+
+  <div id="tests-list" class="grid-2"></div>
+
+  <!-- Active Quiz Section (hidden by default) -->
+  <div id="quiz-section" class="d-none">
+    <div class="quiz-card">
+      <div class="flex-between mb-20">
+        <div>
+          <div class="fw-700 font-head" style="font-size:20px" id="quiz-title">Unit Test 1</div>
+          <div class="text-muted text-sm mt-8" id="quiz-meta">20 Questions · 30 Minutes</div>
+        </div>
+        <div style="text-align:right">
+          <div class="fw-800 font-head text-teal" style="font-size:28px" id="quiz-timer">29:59</div>
+          <div class="text-xs text-muted">Time Remaining</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap mb-24" style="height:4px">
+        <div class="progress-bar" id="quiz-progress" style="width:10%"></div>
+      </div>
+
+      <div class="text-xs text-muted mb-8" id="quiz-qnum">Question 1 of 10</div>
+      <div class="fw-700 font-head" style="font-size:16px;margin-bottom:20px;line-height:1.5" id="quiz-question">Which data structure uses LIFO principle?</div>
+
+      <div id="quiz-options"></div>
+
+      <div class="flex-between mt-24">
+        <button class="btn btn-ghost" id="prev-btn" onclick="quizNav(-1)">← Previous</button>
+        <button class="btn btn-primary" id="next-btn" onclick="quizNav(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ ANALYTICS ════ -->
+<section class="page-section d-none" id="page-analytics">
+  <div class="topbar">
+    <div><div class="topbar-title">📊 My Analytics</div><div class="topbar-sub">Detailed performance breakdown</div></div>
+  </div>
+
+  <div class="grid-4 mb-24">
+    <div class="stat-card"><div class="icon" style="background:rgba(0,212,170,.12)">📈</div><div class="value text-teal">76%</div><div class="label">Overall Average</div></div>
+    <div class="stat-card"><div class="icon" style="background:rgba(255,201,71,.12)">🎯</div><div class="value text-amber">89%</div><div class="label">Test Accuracy</div></div>
+    <div class="stat-card"><div class="icon" style="background:rgba(255,107,107,.12)">📉</div><div class="value text-coral">OS</div><div class="label">Weakest Subject</div></div>
+    <div class="stat-card"><div class="icon" style="background:rgba(46,212,90,.12)">⭐</div><div class="value" style="color:#2ECC71">SE</div><div class="label">Strongest Subject</div></div>
+  </div>
+
+  <div class="grid-2 mb-20">
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Subject-wise Scores</div>
+      <div style="position:relative;height:240px"><canvas id="subjectBar"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Score Trend (Tests)</div>
+      <div style="position:relative;height:240px"><canvas id="trendLine"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Performance Radar</div>
+      <div style="position:relative;height:240px"><canvas id="radarChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Subject Progress</div>
+      <div id="progress-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ LEADERBOARD ════ -->
+<section class="page-section d-none" id="page-leaderboard">
+  <div class="topbar">
+    <div><div class="topbar-title">🏆 Leaderboard</div><div class="topbar-sub">Class ranking — CSE Semester 5</div></div>
+    <div class="topbar-actions"><span class="badge badge-amber">Updated Today</span></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="fw-700 font-head mb-20" style="font-size:15px">Class Ranking</div>
+      <div id="leaderboard-list"></div>
+    </div>
+    <div class="card">
+      <div class="fw-700 font-head mb-16" style="font-size:15px">Top 6 — Avg Score</div>
+      <div style="position:relative;height:280px"><canvas id="leaderChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ MESSAGES ════ -->
+<section class="page-section d-none" id="page-messages">
+  <div class="topbar">
+    <div><div class="topbar-title">💬 Messages</div><div class="topbar-sub">Chat with teachers and classmates</div></div>
+  </div>
+  <div class="chat-wrap">
+    <div class="chat-list">
+      <div class="chat-list-header">Conversations</div>
+      <div id="chat-contacts"></div>
+    </div>
+    <div class="chat-main">
+      <div class="chat-header" id="chat-header">
+        <div class="c-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--navy3);display:flex;align-items:center;justify-content:center">💬</div>
+        <div><div class="fw-700" style="font-size:13px">Select a conversation</div></div>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div style="text-align:center;color:var(--text3);font-size:13px;margin-top:60px">Select a contact to start chatting</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chat-input-box" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()"/>
+        <button class="btn btn-primary btn-sm" onclick="sendMessage()">Send ✈️</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ PROFILE ════ -->
+<section class="page-section d-none" id="page-profile">
+  <div class="topbar"><div class="topbar-title">👤 My Profile</div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div style="text-align:center;padding:20px 0 30px">
+        <div style="position:relative;display:inline-block;cursor:pointer" onclick="document.getElementById('profile-photo-in').click()">
+          <img id="profile-photo-img" style="width:100px;height:100px;border-radius:50%;border:3px solid var(--teal);object-fit:cover" src="" alt=""/>
+          <div style="position:absolute;bottom:4px;right:4px;width:28px;height:28px;border-radius:50%;background:var(--teal);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--navy2)">✏️</div>
+        </div>
+        <input type="file" id="profile-photo-in" accept="image/*" class="d-none" onchange="updateProfilePhoto(event)"/>
+        <div class="fw-800 font-head mt-12" style="font-size:20px" id="profile-name-display">—</div>
+        <div class="text-muted text-sm mt-8" id="profile-role-display">—</div>
+        <span class="badge badge-teal mt-12">Active Student</span>
+      </div>
+      <div class="divider" style="height:1px;background:var(--border);margin:0 -24px 20px"></div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input class="form-control" id="profile-name-in" placeholder="Your name"/>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input class="form-control" id="profile-email-in" placeholder="Email" type="email"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Department</label>
+          <select class="form-control" id="profile-dept-in">
+            <option>CSE</option><option>AI/ML</option><option>IT</option><option>DS</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Semester</label>
+          <select class="form-control" id="profile-sem-in">
+            <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
+            <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
+            <option>Semester 7</option><option>Semester 8</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full mt-12" onclick="saveProfile()">💾 Save Changes</button>
+    </div>
+    <div class="card">
+      <div class="fw-700 font-head mb-20" style="font-size:15px">Academic Summary</div>
+      <div class="grid-2 mb-20">
+        <div class="stat-card"><div class="value text-teal">76%</div><div class="label">Average Score</div></div>
+        <div class="stat-card"><div class="value text-amber">#2</div><div class="label">Class Rank</div></div>
+        <div class="stat-card"><div class="value text-blue">4</div><div class="label">Tests Done</div></div>
+        <div class="stat-card"><div class="value" style="color:var(--purple)">18</div><div class="label">Materials Read</div></div>
+      </div>
+      <div class="fw-700 font-head mb-12" style="font-size:14px">Change Password</div>
+      <div class="form-group"><label>Current Password</label><input class="form-control" type="password" placeholder="••••••••"/></div>
+      <div class="form-group"><label>New Password</label><input class="form-control" type="password" placeholder="••••••••"/></div>
+      <button class="btn btn-ghost btn-full mt-8">🔐 Update Password</button>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// ══ INIT ══
+const user = getUser();
+if(user && user.role !== 'student') window.location.href = 'teacher-dashboard.html';
+
+// Greeting
+const h = new Date().getHours();
+document.getElementById('dash-greeting').textContent = (h<12?'Good Morning':'h<17?'Good Afternoon':'Good Evening') + ', ' + (user?.name||'Student') + '! 👋';
+document.getElementById('dash-sub').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.getElementById('dash-dept-badge').textContent = (user?.dept||'CSE') + ' · ' + (user?.sem||'Sem 5');
+renderSidebarUser(user);
+
+// Profile photo
+document.getElementById('profile-photo-img').src = user?.photo || 'https://api.dicebear.com/7.x/avataaars/svg?seed='+(user?.name||'student');
+document.getElementById('profile-name-display').textContent = user?.name||'Student';
+document.getElementById('profile-role-display').textContent = (user?.dept||'CSE')+' · '+(user?.sem||'Semester 5');
+document.getElementById('profile-name-in').value = user?.name||'';
+document.getElementById('profile-email-in').value = user?.email||'';
+
+// ══ DASHBOARD CHART ══
+new Chart(document.getElementById('perfChart').getContext('2d'),{
+  type:'bar',
+  data:{labels:DEMO.subjects,datasets:[{data:DEMO.scores,backgroundColor:['rgba(0,212,170,.7)','rgba(74,144,226,.7)','rgba(255,107,107,.7)','rgba(255,201,71,.7)','rgba(124,92,191,.7)'],borderRadius:6}]},
+  options:{...chartDefaults(),scales:{x:{grid:{display:false},ticks:{color:'#9BA3C4',font:{size:10}}},y:{min:0,max:100,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#9BA3C4',font:{size:10},callback:v=>v+'%'}}}}
+});
+
+// ══ UPCOMING TESTS ══
+const tList = document.getElementById('upcoming-tests-list');
+DEMO.tests.filter(t=>t.status==='upcoming').forEach(t=>{
+  tList.innerHTML += `<div class="flex-between" style="padding:10px 0;border-bottom:1px solid var(--border)">
+    <div>
+      <div class="fw-700 text-sm">${t.title}</div>
+      <div class="text-xs text-muted mt-8">${t.date} · ${t.duration} min · ${t.marks} marks</div>
+    </div>
+    <button class="btn btn-amber btn-sm" onclick="startQuiz(${t.id})">Start</button>
+  </div>`;
+});
+
+// ══ RECENT MATERIALS ══
+const mList = document.getElementById('recent-materials-list');
+DEMO.materials.slice(0,4).forEach(m=>{
+  const icons={pdf:'📄',video:'🎥',pyq:'📋'};
+  const colors={pdf:'rgba(74,144,226,.12)',video:'rgba(255,107,107,.12)',pyq:'rgba(255,201,71,.12)'};
+  mList.innerHTML += `<div class="material-card mb-12 card-sm">
+    <div class="mat-icon" style="background:${colors[m.type]}">${icons[m.type]}</div>
+    <div><div class="mat-title">${m.title}</div><div class="mat-meta">${m.subject} · ${m.size} · ${m.date}</div></div>
+  </div>`;
+});
+
+// ══ MATERIALS PAGE ══
+let matTab = 'all';
+function renderMaterials(data){
+  const icons={pdf:'📄',video:'🎥',pyq:'📋'};
+  const colors={pdf:'rgba(74,144,226,.12)',video:'rgba(255,107,107,.12)',pyq:'rgba(255,201,71,.12)'};
+  const grid = document.getElementById('materials-grid');
+  grid.innerHTML = data.length ? data.map(m=>`
+    <div class="material-card" onclick="toast('Opening: '+m.title,'info')">
+      <div class="mat-icon" style="background:${colors[m.type]}">${icons[m.type]}</div>
+      <div style="flex:1">
+        <div class="mat-title">${m.title}</div>
+        <div class="mat-meta">${m.subject} · ${m.size}</div>
+        <div class="flex gap-8 mt-8">
+          <span class="badge badge-${m.type==='pdf'?'blue':m.type==='video'?'coral':'amber'}">${m.type.toUpperCase()}</span>
+          <span class="text-xs text-muted">${m.date}</span>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm">⬇ Download</button>
+    </div>`).join('') : '<div style="text-align:center;padding:40px;color:var(--text3);grid-column:1/-1">No materials found.</div>';
+}
+function filterMaterials(){
+  const type=document.getElementById('filter-type').value;
+  const q=document.getElementById('filter-search').value.toLowerCase();
+  renderMaterials(DEMO.materials.filter(m=>(matTab==='all'||m.type===matTab)&&(!type||m.type===type)&&(!q||m.title.toLowerCase().includes(q)||m.subject.toLowerCase().includes(q))));
+}
+function switchMatTab(tab,btn){
+  matTab=tab;
+  document.querySelectorAll('.tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterMaterials();
+}
+renderMaterials(DEMO.materials);
+
+// ══ TESTS PAGE ══
+let testTab='upcoming';
+function renderTests(tab){
+  const filtered=DEMO.tests.filter(t=>t.status===tab);
+  const grid=document.getElementById('tests-list');
+  grid.innerHTML=filtered.map(t=>`
+    <div class="card">
+      <div class="flex-between mb-12">
+        <span class="badge ${t.status==='upcoming'?'badge-amber':'badge-teal'}">${t.status==='upcoming'?'⏳ Upcoming':'✅ Completed'}</span>
+        <span class="text-xs text-muted">${t.date}</span>
+      </div>
+      <div class="fw-700 font-head mb-8" style="font-size:15px">${t.title}</div>
+      <div class="text-muted text-sm mb-16">${t.duration} minutes · ${t.marks} marks</div>
+      ${t.status==='completed'?`
+        <div class="flex-between mb-12">
+          <span class="text-muted text-sm">Your Score</span>
+          <span class="fw-800 text-teal font-head" style="font-size:18px">${t.score}/${t.marks}</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:${Math.round(t.score/t.marks*100)}%"></div></div>
+        <div class="text-xs text-muted mt-8">${Math.round(t.score/t.marks*100)}% · ${Math.round(t.score/t.marks*100)>=75?'Pass ✅':'Needs improvement ⚠️'}</div>
+      `:`<button class="btn btn-amber btn-full" onclick="startQuiz(${t.id})">🚀 Start Test</button>`}
+    </div>`).join('');
+}
+function switchTestTab(tab,btn){
+  testTab=tab;
+  document.querySelectorAll('.tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tests-list').classList.remove('d-none');
+  document.getElementById('quiz-section').classList.add('d-none');
+  renderTests(tab);
+}
+renderTests('upcoming');
+
+// ══ QUIZ LOGIC ══
+const QUIZ_QS=[
+  {q:'Which data structure uses LIFO principle?',opts:['Queue','Stack','Linked List','Tree'],ans:1},
+  {q:'What is the time complexity of Binary Search?',opts:['O(n)','O(n²)','O(log n)','O(1)'],ans:2},
+  {q:'SQL stands for?',opts:['Structured Query Language','Simple Query Language','Standard Query Lookup','Sequential Query Language'],ans:0},
+  {q:'Which of the following is NOT an OS?',opts:['Windows','Linux','Oracle','macOS'],ans:2},
+  {q:'HTTP stands for?',opts:['HyperText Transfer Protocol','HighText Transfer Protocol','HyperText Transmission Protocol','HyperText Transport Protocol'],ans:0},
+];
+let qIdx=0, answers=[], timerInt=null, totalSecs=30*60;
+
+function startQuiz(id){
+  document.getElementById('tests-list').classList.add('d-none');
+  document.getElementById('quiz-section').classList.remove('d-none');
+  const t=DEMO.tests.find(x=>x.id===id);
+  document.getElementById('quiz-title').textContent=t.title;
+  document.getElementById('quiz-meta').textContent=QUIZ_QS.length+' Questions · '+t.duration+' Minutes';
+  totalSecs=t.duration*60; qIdx=0; answers=new Array(QUIZ_QS.length).fill(-1);
+  renderQuestion(); startTimer();
+}
+function renderQuestion(){
+  const q=QUIZ_QS[qIdx];
+  document.getElementById('quiz-qnum').textContent='Question '+(qIdx+1)+' of '+QUIZ_QS.length;
+  document.getElementById('quiz-question').textContent=q.q;
+  document.getElementById('quiz-progress').style.width=(((qIdx+1)/QUIZ_QS.length)*100)+'%';
+  document.getElementById('quiz-options').innerHTML=q.opts.map((o,i)=>`
+    <div class="quiz-option ${answers[qIdx]===i?'selected':''}" onclick="selectOpt(${i})">
+      <div class="opt-circle">${String.fromCharCode(65+i)}</div>${o}
+    </div>`).join('');
+  document.getElementById('prev-btn').disabled=qIdx===0;
+  document.getElementById('next-btn').textContent=qIdx===QUIZ_QS.length-1?'Submit ✅':'Next →';
+}
+function selectOpt(i){ answers[qIdx]=i; renderQuestion(); }
+function quizNav(dir){
+  if(dir===1&&qIdx===QUIZ_QS.length-1){ submitQuiz(); return; }
+  qIdx=Math.max(0,Math.min(QUIZ_QS.length-1,qIdx+dir));
+  renderQuestion();
+}
+function submitQuiz(){
+  clearInterval(timerInt);
+  const score=answers.reduce((a,v,i)=>a+(v===QUIZ_QS[i].ans?1:0),0);
+  document.getElementById('quiz-section').classList.add('d-none');
+  document.getElementById('tests-list').classList.remove('d-none');
+  toast(`Quiz submitted! Score: ${score}/${QUIZ_QS.length} (${Math.round(score/QUIZ_QS.length*100)}%)`, score>QUIZ_QS.length/2?'success':'error');
+  renderTests(testTab);
+}
+function startTimer(){
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>{
+    totalSecs--;
+    const m=Math.floor(totalSecs/60), s=totalSecs%60;
+    document.getElementById('quiz-timer').textContent=m+':'+(s<10?'0':'')+s;
+    if(totalSecs<=0){ clearInterval(timerInt); submitQuiz(); }
+  },1000);
+}
+
+// ══ ANALYTICS CHARTS ══
+function initAnalyticsCharts(){
+  new Chart(document.getElementById('subjectBar').getContext('2d'),{
+    type:'bar',data:{labels:DEMO.subjects,datasets:[{data:DEMO.scores,backgroundColor:['#00D4AA','#4A90E2','#FF6B6B','#FFC947','#7C5CBF'],borderRadius:8}]},
+    options:{...chartDefaults(),indexAxis:'y',scales:{x:{min:0,max:100,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#9BA3C4',font:{size:10},callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:'#9BA3C4',font:{size:10}}}}}
+  });
+  new Chart(document.getElementById('trendLine').getContext('2d'),{
+    type:'line',data:{labels:['Test 1','Test 2','Test 3','Test 4'],datasets:[{data:[68,74,80,76],borderColor:'#00D4AA',backgroundColor:'rgba(0,212,170,.08)',tension:.4,fill:true,pointBackgroundColor:'#00D4AA',pointRadius:5}]},
+    options:{...chartDefaults(),scales:{y:{min:50,max:100,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#9BA3C4',font:{size:10},callback:v=>v+'%'}},x:{grid:{display:false},ticks:{color:'#9BA3C4',font:{size:10}}}}}
+  });
+  new Chart(document.getElementById('radarChart').getContext('2d'),{
+    type:'radar',data:{labels:DEMO.subjects,datasets:[{data:DEMO.scores,borderColor:'#00D4AA',backgroundColor:'rgba(0,212,170,.1)',pointBackgroundColor:'#00D4AA'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:0,max:100,grid:{color:'rgba(255,255,255,.08)'},ticks:{display:false},pointLabels:{color:'#9BA3C4',font:{size:11}}}}}
+  });
+
+  const pl=document.getElementById('progress-list');
+  DEMO.subjects.forEach((s,i)=>{
+    pl.innerHTML+=`<div class="mb-16">
+      <div class="flex-between mb-8"><span class="text-sm fw-700">${s}</span><span class="text-sm text-teal fw-700">${DEMO.scores[i]}%</span></div>
+      <div class="progress-wrap"><div class="progress-bar ${DEMO.scores[i]<65?'coral':DEMO.scores[i]<80?'amber':''}" style="width:${DEMO.scores[i]}%"></div></div>
+    </div>`;
+  });
+}
+
+// ══ LEADERBOARD ══
+function renderLeaderboard(){
+  const ll=document.getElementById('leaderboard-list');
+  ll.innerHTML=DEMO.leaderboard.map((s,i)=>`
+    <div class="leaderboard-row ${i<3?'card-glow':''}">
+      <div class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${s.badge||('#'+(i+1))}</div>
+      <div class="c-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid var(--border2)">
+        ${s.name.charAt(0)}
+      </div>
+      <div style="flex:1"><div class="fw-700 text-sm">${s.name}</div><div class="text-xs text-muted">CSE · Sem 5</div></div>
+      <div class="fw-800 text-teal font-head">${s.avg}%</div>
+    </div>`).join('');
+
+  new Chart(document.getElementById('leaderChart').getContext('2d'),{
+    type:'bar',
+    data:{labels:DEMO.leaderboard.map(s=>s.name.split(' ')[0]),datasets:[{data:DEMO.leaderboard.map(s=>s.avg),backgroundColor:['rgba(255,215,0,.7)','rgba(192,192,192,.7)','rgba(205,127,50,.7)','rgba(0,212,170,.5)','rgba(0,212,170,.4)','rgba(0,212,170,.3)'],borderRadius:6}]},
+    options:{...chartDefaults(),scales:{y:{min:40,max:100,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#9BA3C4',font:{size:10},callback:v=>v+'%'}},x:{grid:{display:false},ticks:{color:'#9BA3C4',font:{size:10}}}}}
+  });
+}
+
+// ══ MESSAGES ══
+let activeChatId = null;
+function renderChatContacts(){
+  const cl=document.getElementById('chat-contacts');
+  cl.innerHTML=DEMO.messages.map(m=>`
+    <div class="chat-contact ${activeChatId===m.id?'active':''}" onclick="openChat(${m.id})">
+      <div class="c-avatar"><img src="${m.photo}" style="width:100%;height:100%;border-radius:50%"/></div>
+      <div><div class="c-name">${m.from}</div><div class="c-last">${m.msgs[m.msgs.length-1].txt}</div></div>
+    </div>`).join('');
+}
+function openChat(id){
+  activeChatId=id;
+  renderChatContacts();
+  const m=DEMO.messages.find(x=>x.id===id);
+  document.getElementById('chat-header').innerHTML=`
+    <img src="${m.photo}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--teal)"/>
+    <div><div class="fw-700" style="font-size:13px">${m.from}</div><div class="text-xs text-muted">${m.role}</div></div>`;
+  const cm=document.getElementById('chat-messages');
+  cm.innerHTML=m.msgs.map(msg=>`
+    <div class="msg ${msg.sent?'sent':'recv'}">
+      <div class="bubble">${msg.txt}</div>
+      <div class="time">${msg.time}</div>
+    </div>`).join('');
+  cm.scrollTop=cm.scrollHeight;
+}
+function sendMessage(){
+  if(!activeChatId){toast('Select a conversation first','error');return;}
+  const inp=document.getElementById('chat-input-box');
+  const txt=inp.value.trim(); if(!txt)return;
+  const m=DEMO.messages.find(x=>x.id===activeChatId);
+  m.msgs.push({txt,time:'Just now',sent:true});
+  inp.value=''; openChat(activeChatId);
+}
+renderChatContacts();
+
+// ══ PROFILE ══
+function updateProfilePhoto(e){
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    document.getElementById('profile-photo-img').src=ev.target.result;
+    const u=getUser(); u.photo=ev.target.result;
+    localStorage.setItem('ss_user',JSON.stringify(u));
+    renderSidebarUser(u); toast('Profile photo updated!');
+  };
+  rd.readAsDataURL(f);
+}
+function saveProfile(){
+  const u=getUser();
+  u.name=document.getElementById('profile-name-in').value;
+  u.email=document.getElementById('profile-email-in').value;
+  u.dept=document.getElementById('profile-dept-in').value;
+  u.sem=document.getElementById('profile-sem-in').value;
+  localStorage.setItem('ss_user',JSON.stringify(u));
+  renderSidebarUser(u);
+  document.getElementById('profile-name-display').textContent=u.name;
+  document.getElementById('profile-role-display').textContent=u.dept+' · '+u.sem;
+  document.getElementById('dash-dept-badge').textContent=u.dept+' · '+u.sem;
+  toast('Profile saved successfully!');
+}
+
+// ══ PAGE OBSERVER — lazy init charts ══
+const pageInited={};
+const origShow=showPage;
+window.showPage=function(id){
+  origShow(id);
+  if(id==='analytics'&&!pageInited.analytics){ initAnalyticsCharts(); pageInited.analytics=true; }
+  if(id==='leaderboard'&&!pageInited.leaderboard){ renderLeaderboard(); pageInited.leaderboard=true; }
+  if(id==='materials') filterMaterials();
+  if(id==='tests') renderTests(testTab);
+  if(id==='messages') renderChatContacts();
+};
+</script>
+</body>
+</html>
